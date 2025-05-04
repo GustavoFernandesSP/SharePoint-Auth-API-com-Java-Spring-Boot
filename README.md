@@ -22,7 +22,7 @@ Este projeto é uma API desenvolvida com **Java + Spring Boot** que oferece func
   - Spring Security
   - Spring Data JPA
 - JWT
-- Banco de Dados (MySQL, PostgreSQL ou H2)
+- Banco de Dados ( PostgreSQL )
 - Insomnia / Postman
 - Maven
 
@@ -44,6 +44,7 @@ jwt.secret=seuSegredoJWT
 jwt.expiration=86400000
 Execute o projeto:
 ./mvnw spring-boot:run
+
 🧪 Endpoints Principais
 🔐 Cadastro de Usuário
 POST /auth/register
