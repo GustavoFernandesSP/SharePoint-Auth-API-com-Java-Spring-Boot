@@ -22,3 +22,40 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Compilados Java
+*.class
+
+# Logs
+*.log
+
+# Diretórios de build comuns
+/bin/
+/build/
+/target/
+
+# Configurações de IDEs
+*.iml
+.idea/
+/*.ipr
+/*.iws
+*.classpath
+*.project
+.settings/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Maven
+.mvn/
+!**/src/
+target/
+
+# Gradle
+.gradle/
+build/
+
+# Arquivos temporários
+*.tmp
+*.swp
