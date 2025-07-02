@@ -1,9 +1,13 @@
 package com.gfvirtus.GFVirtus.Controller;
 
 import com.gfvirtus.GFVirtus.DTO.LoginRequestDTO;
+import com.gfvirtus.GFVirtus.DTO.PagamentoRequest;
 import com.gfvirtus.GFVirtus.DTO.TokenResponse;
+import com.gfvirtus.GFVirtus.Entity.Pagamentos;
 import com.gfvirtus.GFVirtus.Entity.Usuarios;
 import com.gfvirtus.GFVirtus.Enum.Role;
+import com.gfvirtus.GFVirtus.Enum.StatusAssinatura;
+import com.gfvirtus.GFVirtus.Repository.PagamentosRepository;
 import com.gfvirtus.GFVirtus.Repository.UsuarioRepository;
 import com.gfvirtus.GFVirtus.Security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +30,9 @@ public class UsuarioController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private PagamentosRepository pagamentosRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -44,6 +52,7 @@ public class UsuarioController {
         // Se o email não existir, define a senha e a role padrão
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario.setRole(Role.USER);  // Define o valor padrão para a role como 'USER'
+        usuario.setStatusAssinatura(StatusAssinatura.PENDENTE);
 
         // Salva o novo usuário no banco de dados
         usuarioRepository.save(usuario);
@@ -104,6 +113,45 @@ public class UsuarioController {
         } else {
             return "Role não encontrada!";
         }
+    }
+
+    // Método para visualizar o status do pagamento.
+    @GetMapping("/check-statuspagamento")
+    public String checkStatusPagamento(@RequestHeader("Authorization") String token) {
+
+        // Remove o "Bearer " do início do token
+        String jwtToken = token.substring(7);
+
+        return jwtUtil.StatusPagamento(jwtToken);
+    }
+
+
+    @PostMapping("/insert-pagamento")
+    public ResponseEntity<String> insertPagamento(@RequestBody PagamentoRequest request) {
+
+        // Busca o usuário que está fazendo o pagamento
+        Optional<Usuarios> optionalUsuario = usuarioRepository.findById(request.getUsuarioId());
+
+        if (optionalUsuario.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
+        }
+
+        Usuarios usuario = optionalUsuario.get();
+
+        // Cria o pagamento
+        Pagamentos pagamento = new Pagamentos();
+        pagamento.setTxid(request.getTxid());
+        pagamento.setData(LocalDateTime.now());
+        pagamento.setValor(request.getValor());
+        pagamento.setUsuario(usuario);
+
+        // Salva o pagamento
+        pagamentosRepository.save(pagamento);
+
+        // Adiciona o pagamento à lista do usuário (opcional, se quiser manter sincronizado em memória)
+        usuario.getPagamentos().add(pagamento);
+
+        return ResponseEntity.ok("Pagamento inserido com sucesso.");
     }
 
 

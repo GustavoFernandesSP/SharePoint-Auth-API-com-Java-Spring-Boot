@@ -30,6 +30,8 @@ public class JwtUtil {
         return getClaims(token).get("role", String.class);
     }
 
+    public String extractPagamento(String token) {return getClaims(token).get("StatusAssinatura", String.class); }
+
     public boolean isTokenValid(String token) {
         try {
             getClaims(token);
@@ -49,6 +51,10 @@ public class JwtUtil {
     public boolean isUser(String token) {
         String role = extractRole(token);
         return "USER".equals(role);  // Verifica se a role é USER
+    }
+
+    public String StatusPagamento(String token){
+        return extractPagamento(token);
     }
 
     private Claims getClaims(String token) {
